@@ -6,10 +6,10 @@
   "description": "${description}",
   "authors": [
     {
-      "name": "FlorianMichael/EnZaXD",
+      "name": "Florian Reuth (EnZaXD)",
       "contact": {
-        "email": "git@florianmichael.de",
-        "homepage": "https://github.com/FlorianMichael"
+        "email": "git@florianreuth.de",
+        "homepage": "https://github.com/florianreuth"
       }
     }
   ],
@@ -17,22 +17,26 @@
     {
       "name": "GitHub contributors",
       "contact": {
-        "homepage": "https://github.com/FlorianMichael/SecondChat/graphs/contributors"
+        "homepage": "https://github.com/florianreuth/SecondChat/graphs/contributors"
       }
     }
   ],
   "contact": {
-    "homepage": "https://florianmichael.de/",
-    "sources": "https://github.com/FlorianMichael/SecondChat",
-    "issues": "https://github.com/FlorianMichael/SecondChat/issues",
-    "email": "contact@florianmichael.de"
+    "homepage": "https://florianreuth.de/",
+    "sources": "https://github.com/florianreuth/SecondChat",
+    "issues": "https://github.com/florianreuth/SecondChat/issues",
+    "email": "florian@florianreuth.de"
   },
   "license": "GPL-v3",
   "icon": "assets/secondchat/icon.png",
   "environment": "client",
   "entrypoints": {
-    "client": [ "de.florianmichael.secondchat.SecondChat" ],
-    "modmenu": [ "de.florianmichael.secondchat.filter.ModMenuScreenFactory" ]
+    "client": [
+      "de.florianreuth.secondchat.SecondChat"
+    ],
+    "modmenu": [
+      "de.florianreuth.secondchat.filter.ModMenuScreenFactory"
+    ]
   },
   "mixins": [
     "secondchat.mixins.json"

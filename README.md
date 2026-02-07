@@ -26,16 +26,16 @@ Modrinth - https://modrinth.com/mod/secondchat
 
 Curseforge - https://curseforge.com/minecraft/mc-mods/secondchat
 
-Dev builds - https://build.florianmichael.de/job/SecondChat
+Dev builds - https://build.florianreuth.de/job/SecondChat
 
 ## Use in Gradle
 
 To use SecondChat with Gradle you can
-use [my own repository](https://maven.florianmichael.de/#/releases/de/florianmichael/SecondChat).  
+use [my own repository](https://maven.florianreuth.de/#/releases/de/florianreuth/secondchat).  
 You will find instructions on how to add it into your build script there.
 
 ## Contact
 
 If you encounter any issues, please report them on
-the [issue tracker](https://github.com/FlorianMichael/SecondChat/issues). If you just want to talk or need help with
-SecondChat feel free to join my [Discord](https://florianmichael.de/discord).
+the [issue tracker](https://github.com/florianreuth/SecondChat/issues). If you just want to talk or need help with
+SecondChat feel free to join my [Discord](https://florianreuth.de/discord).

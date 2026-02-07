@@ -1,6 +1,6 @@
 /*
- * This file is part of SecondChat - https://github.com/FlorianMichael/SecondChat
- * Copyright (C) 2025-2026 FlorianMichael/EnZaXD <git@florianmichael.de> and contributors
+ * This file is part of SecondChat - https://github.com/florianreuth/SecondChat
+ * Copyright (C) 2025-2026 Florian Reuth <git@florianreuth.de> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.florianmichael.secondchat;
+package de.florianreuth.secondchat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import de.florianmichael.secondchat.filter.FilterRule;
+import de.florianreuth.secondchat.filter.FilterRule;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;

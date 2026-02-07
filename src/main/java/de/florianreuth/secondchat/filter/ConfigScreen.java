@@ -1,6 +1,6 @@
 /*
- * This file is part of SecondChat - https://github.com/FlorianMichael/SecondChat
- * Copyright (C) 2025-2026 FlorianMichael/EnZaXD <git@florianmichael.de> and contributors
+ * This file is part of SecondChat - https://github.com/florianreuth/SecondChat
+ * Copyright (C) 2025-2026 Florian Reuth <git@florianreuth.de> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.florianmichael.secondchat.filter;
+package de.florianreuth.secondchat.filter;
 
-import de.florianmichael.secondchat.SecondChat;
+import de.florianreuth.secondchat.SecondChat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
