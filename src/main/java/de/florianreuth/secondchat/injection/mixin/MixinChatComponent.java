@@ -48,6 +48,13 @@ public abstract class MixinChatComponent {
         }
     }
 
+    @Inject(method = "deleteMessage", at = @At("RETURN"))
+    public void proxyMessages(MessageSignature messageSignature, CallbackInfo ci) {
+        if ((Object) this == Minecraft.getInstance().gui.getChat()) {
+            secondChat$getChatHud().deleteMessage(messageSignature);
+        }
+    }
+
     @Inject(method = "clearMessages", at = @At("RETURN"))
     public void clearSecondChat(boolean clearHistory, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
