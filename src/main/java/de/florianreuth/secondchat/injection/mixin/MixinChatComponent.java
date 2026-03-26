@@ -20,10 +20,11 @@ package de.florianreuth.secondchat.injection.mixin;
 
 import de.florianreuth.secondchat.SecondChat;
 import de.florianreuth.secondchat.injection.access.IGui;
-import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.multiplayer.chat.GuiMessageSource;
+import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,16 +36,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatComponent.class)
 public abstract class MixinChatComponent {
 
-    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", at = @At("HEAD"), cancellable = true)
-    public void proxyMessages(Component chatComponent, MessageSignature headerSignature, GuiMessageTag tag, CallbackInfo ci) {
+    @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
+    public void proxyMessages(Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            final boolean cancel = SecondChat.instance().matches(chatComponent.getString());
+            final boolean cancel = SecondChat.instance().matches(contents.getString());
             if (!cancel) {
                 return;
             }
 
             ci.cancel();
-            secondChat$getChatHud().addMessage(chatComponent, headerSignature, tag);
+            secondChat$getChatHud().addMessage(contents, signature, source, tag);
         }
     }
 

@@ -21,7 +21,7 @@ package de.florianreuth.secondchat.filter;
 import de.florianreuth.secondchat.SecondChat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -122,13 +122,13 @@ public final class ConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
-        final Matrix3x2fStack pose = guiGraphics.pose();
+        final Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         pose.scale(2.0F, 2.0F);
-        guiGraphics.drawString(font, title, this.width / 4 - font.width(title) / 2, 5, -1, true);
+        graphics.text(font, title, this.width / 4 - font.width(title) / 2, 5, -1, true);
         pose.popMatrix();
     }
 
@@ -146,7 +146,7 @@ public final class ConfigScreen extends Screen {
         }
 
         @Override
-        protected void renderSelection(final GuiGraphics guiGraphics, final ListEntry entry, final int i) {
+        protected void extractSelection(final GuiGraphicsExtractor graphics, final ListEntry entry, final int outlineColor) {
             // Remove selection box
         }
     }
@@ -173,8 +173,8 @@ public final class ConfigScreen extends Screen {
         }
 
         @Override
-        public void renderContent(final GuiGraphics guiGraphics, final int i, final int j, final boolean bl, final float f) {
-            final Matrix3x2fStack pose = guiGraphics.pose();
+        public void extractContent(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final boolean hovered, final float a) {
+            final Matrix3x2fStack pose = graphics.pose();
 
             final int width = getContentWidth();
             final int height = getContentHeight();
@@ -182,13 +182,13 @@ public final class ConfigScreen extends Screen {
             final int color = ConfigScreen.this.alreadyAdded == rule ? RED_TRANSPARENT : Integer.MIN_VALUE;
             pose.pushMatrix();
             pose.translate(getContentX(), getContentY());
-            guiGraphics.fill(0, 0, width - INNER_PADDING * 2, height, color);
+            graphics.fill(0, 0, width - INNER_PADDING * 2, height, color);
 
             final MutableComponent base = Component.literal(rule.value());
-            guiGraphics.drawString(font, bl ? base.withStyle(ChatFormatting.ITALIC, ChatFormatting.RED) : base, INNER_PADDING, INNER_PADDING, -1);
+            graphics.text(font, hovered ? base.withStyle(ChatFormatting.ITALIC, ChatFormatting.RED) : base, INNER_PADDING, INNER_PADDING, -1);
 
             final Component narration = Component.literal("").append(getNarration()).withStyle(ChatFormatting.GOLD);
-            guiGraphics.drawString(font, narration, width - font.width(narration) - INNER_PADDING * 2, INNER_PADDING, -1);
+            graphics.text(font, narration, width - font.width(narration) - INNER_PADDING * 2, INNER_PADDING, -1);
             pose.popMatrix();
         }
     }

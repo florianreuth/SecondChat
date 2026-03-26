@@ -25,7 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,6 +52,9 @@ public abstract class MixinChatScreen extends Screen {
     @Shadow
     protected abstract boolean insertionClickMode();
 
+    @Shadow
+    private ChatComponent.DisplayMode displayMode;
+
     @WrapOperation(method = {"keyPressed", "mouseScrolled"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;scrollChat(I)V"))
     private void scrollSecondChat(ChatComponent instance, int posInc, Operation<Void> original) {
         if (secondChat$mainChatFocused) {
@@ -61,7 +64,7 @@ public abstract class MixinChatScreen extends Screen {
         }
     }
 
-    @WrapOperation(method = {"mouseClicked"}, at = @At(value = "NEW", target = "(Lnet/minecraft/client/gui/Font;II)Lnet/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder;"))
+    @WrapOperation(method = "mouseClicked", at = @At(value = "NEW", target = "(Lnet/minecraft/client/gui/Font;II)Lnet/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder;"))
     private ActiveTextCollector.ClickableStyleFinder clickSecondChat(Font font, int mouseX, int mouseY, Operation<ActiveTextCollector.ClickableStyleFinder> original) {
         if (!secondChat$mainChatFocused) {
             mouseX = secondChat$fixMouseX(mouseX);
@@ -79,15 +82,15 @@ public abstract class MixinChatScreen extends Screen {
         }
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
-    public void decideFocusedChat(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
+    public void decideFocusedChat(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
         secondChat$mainChatFocused = mouseX <= width / 2;
 
-        final Matrix3x2fStack pose = guiGraphics.pose();
+        final Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         final ChatComponent secondChat = secondChat$getChatHud();
-        pose.translate(guiGraphics.guiWidth() - secondChat.getWidth(), 0);
-        secondChat.render(guiGraphics, font, minecraft.gui.getGuiTicks(), mouseX, mouseY, true, insertionClickMode());
+        pose.translate(graphics.guiWidth() - secondChat.getWidth(), 0);
+        secondChat.extractRenderState(graphics, font, minecraft.gui.getGuiTicks(), mouseX, mouseY, displayMode, insertionClickMode());
         pose.popMatrix();
     }
 

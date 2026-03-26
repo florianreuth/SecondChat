@@ -22,7 +22,7 @@ import de.florianreuth.secondchat.injection.access.IGui;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ChatComponent;
 import org.joml.Matrix3x2fStack;
 import org.objectweb.asm.Opcodes;
@@ -42,34 +42,34 @@ public abstract class MixinGui implements IGui {
     @Final
     private ChatComponent chat;
 
+    @Shadow
+    protected abstract void extractChat(final GuiGraphicsExtractor graphics, final DeltaTracker deltaTracker);
+
     @Unique
     private ChatComponent secondChat$chatComponent;
 
     @Unique
     private boolean secondChat$replacingChatHud;
 
-    @Shadow
-    protected abstract void renderChat(final GuiGraphics guiGraphics, final DeltaTracker deltaTracker);
-
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(Minecraft minecraft, CallbackInfo ci) {
         secondChat$chatComponent = new ChatComponent(minecraft);
     }
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderChat(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    private void renderSecondChat(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;extractChat(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    private void renderSecondChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         secondChat$replacingChatHud = true;
 
-        final Matrix3x2fStack pose = guiGraphics.pose();
+        final Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
-        pose.translate(guiGraphics.guiWidth() - secondChat$chatComponent.getWidth(), 0);
-        this.renderChat(guiGraphics, deltaTracker);
+        pose.translate(graphics.guiWidth() - secondChat$chatComponent.getWidth(), 0);
+        this.extractChat(graphics, deltaTracker);
         pose.popMatrix();
 
         secondChat$replacingChatHud = false;
     }
 
-    @Redirect(method = "renderChat", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/Gui;chat:Lnet/minecraft/client/gui/components/ChatComponent;", opcode = Opcodes.GETFIELD))
+    @Redirect(method = "extractChat", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/Gui;chat:Lnet/minecraft/client/gui/components/ChatComponent;", opcode = Opcodes.GETFIELD))
     private ChatComponent replaceChatComponent(Gui instance) {
         if (secondChat$replacingChatHud) {
             return secondChat$chatComponent;

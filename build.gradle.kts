@@ -1,19 +1,19 @@
 import de.florianreuth.baseproject.*
 
 plugins {
-    id("net.fabricmc.fabric-loom-remap")
+    id("net.fabricmc.fabric-loom")
     id("de.florianreuth.baseproject")
 }
 
 setupProject()
-setupFabricRemap()
+setupFabric()
 setupPublishing()
-includeFabricApiModules("fabric-api-base", "fabric-resource-loader-v0", "fabric-screen-api-v1", "fabric-key-binding-api-v1", "fabric-lifecycle-events-v1")
+includeFabricApiModules("fabric-api-base", "fabric-resource-loader-v0", "fabric-screen-api-v1", "fabric-lifecycle-events-v1")
 
 repositories {
     maven("https://maven.terraformersmc.com/releases")
 }
 
 dependencies {
-    modCompileOnly("com.terraformersmc:modmenu:16.0.0")
+    compileOnly("com.terraformersmc:modmenu:18.0.0-alpha.8")
 }
