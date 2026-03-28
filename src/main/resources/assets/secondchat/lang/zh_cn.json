@@ -1,8 +1,6 @@
-﻿{
+{
   "modmenu.descriptionTranslation.secondchat": "Fabric模组，用于添加另一个可选的聊天界面。",
-
   "secondchat.config.title": "SecondChat 配置",
-
   "secondchat.config.filter.equals": "完全匹配",
   "secondchat.config.filter.equals_ignore_case": "完全匹配（忽略大小写）",
   "secondchat.config.filter.contains": "包含",
