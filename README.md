@@ -20,13 +20,15 @@ to the right/second chat, the mod supports the following filter types:
 - CONTAINS
 - REGEX
 
-## Downloads
+## Links
 
 Modrinth - https://modrinth.com/mod/secondchat
 
 Curseforge - https://curseforge.com/minecraft/mc-mods/secondchat
 
 Dev builds - https://build.florianreuth.de/job/SecondChat
+
+Crowdin - https://crowdin.com/project/secondchat
 
 ## Use in Gradle
 
