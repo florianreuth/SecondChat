@@ -69,6 +69,7 @@ public final class ConfigScreen extends Screen {
         final int y = height - Button.DEFAULT_HEIGHT - PADDING - 1;
         int x = width / 2 - TEXT_FIELD_WIDTH - PADDING - PADDING;
         editBox = addRenderableWidget(new EditBox(this.font, x, y, TEXT_FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
+        editBox.setMaxLength(Integer.MAX_VALUE);
 
         x += TEXT_FIELD_WIDTH + PADDING;
         addRenderableWidget(Button
