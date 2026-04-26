@@ -89,14 +89,14 @@ public abstract class MixinChatScreen extends Screen {
         final Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         final ChatComponent secondChat = secondChat$getChatHud();
-        pose.translate(graphics.guiWidth() - secondChat.getWidth(), 0);
+        pose.translate(graphics.guiWidth() - 4 - 4 - secondChat.getWidth(), 0);
         secondChat.extractRenderState(graphics, font, minecraft.gui.getGuiTicks(), mouseX, mouseY, displayMode, insertionClickMode());
         pose.popMatrix();
     }
 
     @Unique
     private int secondChat$fixMouseX(final int mouseX) {
-        return mouseX - minecraft.getWindow().getGuiScaledWidth() + secondChat$getChatHud().getWidth();
+        return mouseX - minecraft.getWindow().getGuiScaledWidth() + secondChat$getChatHud().getWidth() + 4 + 4;
     }
 
     @Unique

@@ -62,7 +62,7 @@ public abstract class MixinGui implements IGui {
 
         final Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
-        pose.translate(graphics.guiWidth() - secondChat$chatComponent.getWidth(), 0);
+        pose.translate(graphics.guiWidth() - 4 - 4 - secondChat$chatComponent.getWidth(), 0);
         this.extractChat(graphics, deltaTracker);
         pose.popMatrix();
 
