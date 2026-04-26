@@ -16,12 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.florianreuth.secondchat.injection.access;
+package de.florianreuth.secondchat.screen;
 
-import net.minecraft.client.gui.components.ChatComponent;
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
 
-public interface IGui {
+public final class ModMenuScreenFactory implements ModMenuApi {
 
-    ChatComponent secondChat$getChatComponent();
+    @Override
+    public ConfigScreenFactory<?> getModConfigScreenFactory() {
+        return ConfigScreen::new;
+    }
 
 }

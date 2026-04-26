@@ -19,10 +19,9 @@
 package de.florianreuth.secondchat.injection.mixin;
 
 import de.florianreuth.secondchat.SecondChat;
-import de.florianreuth.secondchat.injection.access.IGui;
+import de.florianreuth.secondchat.filter.ChatConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.chat.GuiMessageSource;
@@ -30,7 +29,6 @@ import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -39,51 +37,57 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinChatComponent {
 
     @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
-    public void proxyMessages(Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
+    private void proxyMessages(Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
             final ServerData currentServer = Minecraft.getInstance().getCurrentServer();
-            final boolean cancel = SecondChat.instance().matches(ChatFormatting.stripFormatting(contents.getString()), currentServer != null ? currentServer.ip : null);
-            if (!cancel) {
-                return;
-            }
+            final String server = currentServer != null ? currentServer.ip : null;
+            final String text = ChatFormatting.stripFormatting(contents.getString());
 
-            ci.cancel();
-            secondChat$getChatHud().addMessage(contents, signature, source, tag);
+            boolean matched = false;
+            for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+                if (config.chatComponent() != null && config.matches(text, server)) {
+                    config.chatComponent().addMessage(contents, signature, source, tag);
+                    matched = true;
+                }
+            }
+            if (matched) ci.cancel();
         }
     }
 
     @Inject(method = "deleteMessage", at = @At("RETURN"))
-    public void proxyDeleteMessage(MessageSignature signature, CallbackInfo ci) {
+    private void proxyDeleteMessage(MessageSignature signature, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            secondChat$getChatHud().deleteMessage(signature);
+            for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+                if (config.chatComponent() != null) config.chatComponent().deleteMessage(signature);
+            }
         }
     }
 
     @Inject(method = "clearMessages", at = @At("RETURN"))
-    public void clearSecondChat(boolean history, CallbackInfo ci) {
+    private void clearAdditionalChats(boolean history, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            secondChat$getChatHud().clearMessages(history);
+            for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+                if (config.chatComponent() != null) config.chatComponent().clearMessages(history);
+            }
         }
     }
 
     @Inject(method = "rescaleChat", at = @At("RETURN"))
-    public void rescaleSecondChat(CallbackInfo ci) {
+    private void rescaleAdditionalChats(CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            secondChat$getChatHud().rescaleChat();
+            for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+                if (config.chatComponent() != null) config.chatComponent().rescaleChat();
+            }
         }
     }
 
     @Inject(method = "resetChatScroll", at = @At("RETURN"))
-    public void resetScrollSecondChat(CallbackInfo ci) {
+    private void resetAdditionalChatsScroll(CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            secondChat$getChatHud().resetChatScroll();
+            for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+                if (config.chatComponent() != null) config.chatComponent().resetChatScroll();
+            }
         }
-    }
-
-    @Unique
-    private ChatComponent secondChat$getChatHud() {
-        final Gui gui = Minecraft.getInstance().gui;
-        return ((IGui) gui).secondChat$getChatComponent();
     }
 
 }

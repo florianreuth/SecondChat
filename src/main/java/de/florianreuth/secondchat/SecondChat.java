@@ -20,12 +20,14 @@ package de.florianreuth.secondchat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import de.florianreuth.secondchat.filter.ChatConfig;
 import de.florianreuth.secondchat.filter.FilterRule;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -37,10 +39,10 @@ public final class SecondChat implements ClientModInitializer {
     private static SecondChat INSTANCE;
 
     private final Logger logger = LogManager.getLogger("SecondChat");
-    private final Path config = FabricLoader.getInstance().getConfigDir().resolve("secondchat.json");
+    private final Path configPath = FabricLoader.getInstance().getConfigDir().resolve("secondchat.json");
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private List<FilterRule> rules;
+    private List<ChatConfig> chatConfigs;
 
     public static SecondChat instance() {
         return INSTANCE;
@@ -49,62 +51,55 @@ public final class SecondChat implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         INSTANCE = this;
+        this.chatConfigs = new ArrayList<>();
 
-        if (Files.exists(config)) {
+        if (Files.exists(this.configPath)) {
             try {
-                final FilterRule[] rules = gson.fromJson(Files.readString(config), FilterRule[].class);
-                this.rules = rules == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(rules));
-            } catch (Exception e) {
-                logger.error("Failed to read file: {}!", config.toString(), e);
+                final String json = Files.readString(this.configPath);
+                final ChatConfig[] configs = this.gson.fromJson(json, ChatConfig[].class);
+                if (configs != null && configs.length > 0) {
+                    if (configs[0].name() == null) {
+                        // Old format (FilterRule[]): migrate to a single ChatConfig
+                        try {
+                            final FilterRule[] rules = this.gson.fromJson(json, FilterRule[].class);
+                            if (rules != null && rules.length > 0) {
+                                final ChatConfig migrated = new ChatConfig("Chat 1", 100, 100);
+                                Collections.addAll(migrated.rules(), rules);
+                                this.chatConfigs.add(migrated);
+                                this.save();
+                            }
+                        } catch (final Exception ignored) {
+                        }
+                    } else {
+                        this.chatConfigs.addAll(Arrays.asList(configs));
+                    }
+                }
+            } catch (final Exception e) {
+                logger.error("Failed to read config file: {}!", this.configPath, e);
             }
-        } else {
-            rules = new ArrayList<>(); // Needs to be modifiable
         }
     }
 
     public void save() {
         try {
-            Files.write(config, gson.toJson(rules).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (Exception e) {
-            logger.error("Failed to create file: {}!", config.toString(), e);
+            Files.write(this.configPath, this.gson.toJson(this.chatConfigs).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (final Exception e) {
+            logger.error("Failed to write config file: {}!", this.configPath, e);
         }
     }
 
-    public void add(final FilterRule rule) {
-        rules.add(rule);
-        save();
+    public void addChat(final ChatConfig config) {
+        this.chatConfigs.add(config);
+        this.save();
     }
 
-    public void remove(final FilterRule rule) {
-        rules.remove(rule);
-        save();
+    public void removeChat(final ChatConfig config) {
+        this.chatConfigs.remove(config);
+        this.save();
     }
 
-    public void update(final FilterRule old, final FilterRule updated) {
-        final int index = rules.indexOf(old);
-        if (index >= 0) {
-            rules.set(index, updated);
-        } else {
-            rules.add(updated);
-        }
-        save();
-    }
-
-    public boolean matches(final String input, final String server) {
-        return rules.stream()
-            .filter(rule -> rule.matchesServer(server))
-            .anyMatch(rule -> switch (rule.type()) {
-                case EQUALS -> input.equals(rule.value());
-                case EQUALS_IGNORE_CASE -> input.equalsIgnoreCase(rule.value());
-                case STARTS_WITH -> input.startsWith(rule.value());
-                case ENDS_WITH -> input.endsWith(rule.value());
-                case CONTAINS -> input.contains(rule.value());
-                case REGEX -> input.matches(rule.value());
-            });
-    }
-
-    public List<FilterRule> rules() {
-        return rules;
+    public List<ChatConfig> chatConfigs() {
+        return this.chatConfigs;
     }
 
 }

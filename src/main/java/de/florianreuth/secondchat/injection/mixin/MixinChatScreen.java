@@ -20,8 +20,8 @@ package de.florianreuth.secondchat.injection.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import de.florianreuth.secondchat.injection.access.IGui;
-import net.minecraft.client.Minecraft;
+import de.florianreuth.secondchat.SecondChat;
+import de.florianreuth.secondchat.filter.ChatConfig;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
@@ -31,6 +31,7 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -43,7 +44,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinChatScreen extends Screen {
 
     @Unique
-    private boolean secondChat$mainChatFocused;
+    private @Nullable ChatConfig secondChat$focusedConfig;
 
     protected MixinChatScreen(Component title) {
         super(title);
@@ -56,53 +57,72 @@ public abstract class MixinChatScreen extends Screen {
     private ChatComponent.DisplayMode displayMode;
 
     @WrapOperation(method = {"keyPressed", "mouseScrolled"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;scrollChat(I)V"))
-    private void scrollSecondChat(ChatComponent instance, int dir, Operation<Void> original) {
-        if (secondChat$mainChatFocused) {
+    private void scrollAdditionalChats(ChatComponent instance, int dir, Operation<Void> original) {
+        if (this.secondChat$focusedConfig == null) {
             original.call(instance, dir);
         } else {
-            secondChat$getChatHud().scrollChat(dir);
+            this.secondChat$focusedConfig.chatComponent().scrollChat(dir);
         }
     }
 
     @WrapOperation(method = "mouseClicked", at = @At(value = "NEW", target = "(Lnet/minecraft/client/gui/Font;II)Lnet/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder;"))
-    private ActiveTextCollector.ClickableStyleFinder clickSecondChat(Font font, int mouseX, int testY, Operation<ActiveTextCollector.ClickableStyleFinder> original) {
-        if (!secondChat$mainChatFocused) {
-            mouseX = secondChat$fixMouseX(mouseX);
+    private ActiveTextCollector.ClickableStyleFinder clickAdditionalChats(Font font, int mouseX, int testY, Operation<ActiveTextCollector.ClickableStyleFinder> original) {
+        if (this.secondChat$focusedConfig != null) {
+            mouseX = mouseX - secondChat$translateX(this.secondChat$focusedConfig);
+            testY = testY - secondChat$translateY(this.secondChat$focusedConfig);
         }
-
         return original.call(font, mouseX, testY);
     }
 
     @Redirect(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getChat()Lnet/minecraft/client/gui/components/ChatComponent;"))
-    private ChatComponent clickSecondChat(Gui instance) {
-        if (secondChat$mainChatFocused) {
-            return instance.getChat();
-        } else {
-            return secondChat$getChatHud();
-        }
+    private ChatComponent clickAdditionalChats(Gui instance) {
+        return this.secondChat$focusedConfig == null ? instance.getChat() : this.secondChat$focusedConfig.chatComponent();
     }
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
     public void decideFocusedChat(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
-        secondChat$mainChatFocused = mouseX <= width / 2;
+        this.secondChat$focusedConfig = null;
 
-        final Matrix3x2fStack pose = graphics.pose();
-        pose.pushMatrix();
-        final ChatComponent secondChat = secondChat$getChatHud();
-        pose.translate(graphics.guiWidth() - 4 - 4 - secondChat.getWidth(), 0);
-        secondChat.extractRenderState(graphics, font, minecraft.gui.getGuiTicks(), mouseX, mouseY, displayMode, insertionClickMode());
-        pose.popMatrix();
+        for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+            if (config.chatComponent() == null) continue;
+
+            final int translateX = secondChat$translateX(config);
+            final int translateY = secondChat$translateY(config);
+            final Matrix3x2fStack pose = graphics.pose();
+            pose.pushMatrix();
+            pose.translate(translateX, translateY);
+            config.chatComponent().extractRenderState(graphics, font, minecraft.gui.getGuiTicks(), mouseX, mouseY, displayMode, insertionClickMode());
+            pose.popMatrix();
+
+            if (secondChat$isMouseOver(config, mouseX, mouseY)) {
+                this.secondChat$focusedConfig = config;
+            }
+        }
     }
 
     @Unique
-    private int secondChat$fixMouseX(final int mouseX) {
-        return mouseX - minecraft.getWindow().getGuiScaledWidth() + secondChat$getChatHud().getWidth() + 4 + 4;
+    private boolean secondChat$isMouseOver(final ChatConfig config, final int mouseX, final int mouseY) {
+        if (config.chatComponent() == null) return false;
+
+        final int left = secondChat$translateX(config);
+        final int right = left + config.chatComponent().getWidth();
+        final int anchorY = this.height - 40 + secondChat$translateY(config);
+        final int top = anchorY - config.chatComponent().getHeight();
+        final int bottom = anchorY + this.font.lineHeight;
+
+        return mouseX >= left && mouseX < right && mouseY >= top && mouseY < bottom;
     }
 
     @Unique
-    private ChatComponent secondChat$getChatHud() {
-        final Gui gui = Minecraft.getInstance().gui;
-        return ((IGui) gui).secondChat$getChatComponent();
+    private int secondChat$translateX(final ChatConfig config) {
+        if (config.chatComponent() == null) return 0;
+        final int guiWidth = minecraft.getWindow().getGuiScaledWidth();
+        return (int) ((config.x() / 100.0F) * Math.max(0, guiWidth - config.chatComponent().getWidth()));
+    }
+
+    @Unique
+    private int secondChat$translateY(final ChatConfig config) {
+        return (int) ((config.y() - 100) / 100.0F * height);
     }
 
 }

@@ -18,7 +18,8 @@
 
 package de.florianreuth.secondchat.injection.mixin;
 
-import de.florianreuth.secondchat.injection.access.IGui;
+import de.florianreuth.secondchat.filter.ChatConfig;
+import de.florianreuth.secondchat.SecondChat;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -36,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
-public abstract class MixinGui implements IGui {
+public abstract class MixinGui {
 
     @Shadow
     @Final
@@ -46,41 +47,36 @@ public abstract class MixinGui implements IGui {
     protected abstract void extractChat(final GuiGraphicsExtractor graphics, final DeltaTracker deltaTracker);
 
     @Unique
-    private ChatComponent secondChat$chatComponent;
-
-    @Unique
-    private boolean secondChat$replacingChatHud;
+    private ChatComponent secondChat$currentChat;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(Minecraft minecraft, CallbackInfo ci) {
-        secondChat$chatComponent = new ChatComponent(minecraft);
+        for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+            config.ensureInitialized(minecraft);
+        }
     }
 
     @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;extractChat(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
-    private void renderSecondChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        secondChat$replacingChatHud = true;
+    private void renderSecondChats(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+            config.ensureInitialized(Minecraft.getInstance());
 
-        final Matrix3x2fStack pose = graphics.pose();
-        pose.pushMatrix();
-        pose.translate(graphics.guiWidth() - 4 - 4 - secondChat$chatComponent.getWidth(), 0);
-        this.extractChat(graphics, deltaTracker);
-        pose.popMatrix();
-
-        secondChat$replacingChatHud = false;
+            this.secondChat$currentChat = config.chatComponent();
+            final Matrix3x2fStack pose = graphics.pose();
+            pose.pushMatrix();
+            final int chatWidth = this.secondChat$currentChat.getWidth();
+            final int tx = (int) ((config.x() / 100.0f) * Math.max(0, graphics.guiWidth() - chatWidth));
+            final int ty = (int) ((config.y() - 100) / 100.0f * graphics.guiHeight());
+            pose.translate(tx, ty);
+            this.extractChat(graphics, deltaTracker);
+            pose.popMatrix();
+        }
+        this.secondChat$currentChat = null;
     }
 
     @Redirect(method = "extractChat", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/Gui;chat:Lnet/minecraft/client/gui/components/ChatComponent;", opcode = Opcodes.GETFIELD))
     private ChatComponent replaceChatComponent(Gui instance) {
-        if (secondChat$replacingChatHud) {
-            return secondChat$chatComponent;
-        } else {
-            return chat;
-        }
-    }
-
-    @Override
-    public ChatComponent secondChat$getChatComponent() {
-        return secondChat$chatComponent;
+        return this.secondChat$currentChat != null ? this.secondChat$currentChat : chat;
     }
 
 }

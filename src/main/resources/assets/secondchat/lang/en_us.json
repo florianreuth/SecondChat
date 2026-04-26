@@ -12,6 +12,8 @@
   "secondchat.config.button.add": "Add",
   "secondchat.config.button.edit": "Edit",
   "secondchat.config.button.delete": "Delete",
+  "secondchat.config.button.add.rule": "Add Rule",
+  "secondchat.config.button.clear": "Clear All",
   "secondchat.config.save": "Save",
   "secondchat.config.cancel": "Cancel",
 
@@ -24,5 +26,12 @@
   "secondchat.config.filter.regex": "Regex",
 
   "secondchat.config.server.hint": "Server (optional)",
-  "secondchat.config.server.all": "All"
+  "secondchat.config.server.all": "All",
+
+  "secondchat.chat.add.title": "Add Chat",
+  "secondchat.chat.edit.title": "Edit Chat",
+  "secondchat.chat.name": "Name",
+  "secondchat.chat.name.hint": "Chat name",
+  "secondchat.chat.x": "X",
+  "secondchat.chat.y": "Y"
 }

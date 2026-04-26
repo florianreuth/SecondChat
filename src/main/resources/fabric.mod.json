@@ -35,7 +35,7 @@
       "de.florianreuth.secondchat.SecondChat"
     ],
     "modmenu": [
-      "de.florianreuth.secondchat.filter.ModMenuScreenFactory"
+      "de.florianreuth.secondchat.screen.ModMenuScreenFactory"
     ]
   },
   "mixins": [
