@@ -65,8 +65,7 @@ public final class SecondChat implements ClientModInitializer {
                             if (rules != null && rules.length > 0) {
                                 final ChatConfig migrated = new ChatConfig("Chat 1", 100, 100);
                                 Collections.addAll(migrated.rules(), rules);
-                                this.chatConfigs.add(migrated);
-                                this.save();
+                                this.addChat(migrated);
                             }
                         } catch (final Exception ignored) {
                         }
@@ -77,6 +76,10 @@ public final class SecondChat implements ClientModInitializer {
             } catch (final Exception e) {
                 logger.error("Failed to read config file: {}!", this.configPath, e);
             }
+        }
+
+        if (this.chatConfigs.isEmpty()) {
+            this.addChat(new ChatConfig("Chat 1", 100, 100));
         }
     }
 
