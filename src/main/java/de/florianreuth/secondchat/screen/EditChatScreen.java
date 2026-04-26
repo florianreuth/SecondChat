@@ -18,8 +18,8 @@
 
 package de.florianreuth.secondchat.screen;
 
-import de.florianreuth.secondchat.filter.ChatConfig;
 import de.florianreuth.secondchat.SecondChat;
+import de.florianreuth.secondchat.filter.ChatConfig;
 import de.florianreuth.secondchat.filter.FilterRule;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -238,8 +238,8 @@ public final class EditChatScreen extends Screen {
 
         private final Component label;
 
-        PercentSlider(final int x, final int y, final int w, final Component label, final int initialPct) {
-            super(x, y, w, DEFAULT_HEIGHT, Component.empty(), Mth.clamp(initialPct / 100.0, 0.0, 1.0));
+        PercentSlider(final int x, final int y, final int width, final Component label, final int initialPercentage) {
+            super(x, y, width, DEFAULT_HEIGHT, Component.empty(), Mth.clamp(initialPercentage / 100.0, 0.0, 1.0));
             this.label = label;
             this.updateMessage();
         }
@@ -302,15 +302,15 @@ public final class EditChatScreen extends Screen {
         @Override
         public void extractContent(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final boolean hovered, final float a) {
             final Matrix3x2fStack pose = graphics.pose();
-            final int w = getContentWidth();
-            final int h = getContentHeight();
-            final int y1 = (h - font.lineHeight * 2 - 2) / 2;
+            final int contentWidth = getContentWidth();
+            final int contentHeight = getContentHeight();
+            final int y1 = (contentHeight - font.lineHeight * 2 - 2) / 2;
 
             pose.pushMatrix();
             pose.translate(getContentX(), getContentY());
 
             String valueString = this.rule.value();
-            final int maxWidth = w - INNER_PADDING * 2;
+            final int maxWidth = contentWidth - INNER_PADDING * 2;
             if (font.width(valueString) > maxWidth) {
                 while (!valueString.isEmpty() && font.width(valueString + "...") > maxWidth) {
                     valueString = valueString.substring(0, valueString.length() - 1);

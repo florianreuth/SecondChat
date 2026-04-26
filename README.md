@@ -1,43 +1,57 @@
 # SecondChat
 
-Fabric mod to add another optional chat hud.
+Client-side Fabric mod that adds configurable extra chat HUDs.
 
-## Preview
+You can create multiple chat windows, move them around your screen, and route incoming messages into each chat using filter rules.
+
+## Screenshots
+
+### In-game Preview
 
 ![Preview](.github/images/preview.png)
-You can scroll in the right/second chat by moving your mouse to the right middle of the screen.
 
-## Configuration
+### Chat Configuration
 
-![Configuration](.github/images/configuration.png)
-You can define multiple rules with different filter types, every message matching one of the rules will be added
-to the right/second chat, the mod supports the following filter types:
+![Chat configuration](.github/images/chat_configuration.png)
 
-- EQUALS
-- EQUALS IGNORE CASE
-- STARTS WITH
-- ENDS WITH
-- CONTAINS
-- REGEX
+### Add a Chat
+
+![Add chat](.github/images/add_chat.png)
+
+### Rules Configuration
+
+![Rules configuration](.github/images/rules_configuration.png)
+
+### Add or Edit a Rule
+
+![Add rule](.github/images/add_rule.png)
+
+## Usage
+
+1. Open SecondChat config from Mod Menu.
+2. Add a chat and choose a name.
+3. Set chat position with `X` and `Y` sliders.
+4. Open the chat and add rules to control which messages appear there.
+5. Optionally set a server value on each rule to scope it to one server.
+
+Messages that match at least one rule in a chat are routed to that chat.
 
 ## Links
 
-Modrinth - https://modrinth.com/mod/secondchat
-
-Curseforge - https://curseforge.com/minecraft/mc-mods/secondchat
-
-Dev builds - https://build.florianreuth.de/job/SecondChat
-
-Crowdin - https://crowdin.com/project/secondchat
+- Modrinth: https://modrinth.com/mod/secondchat
+- CurseForge: https://curseforge.com/minecraft/mc-mods/secondchat
+- Dev builds: https://build.florianreuth.de/job/SecondChat
+- Crowdin: https://crowdin.com/project/secondchat
 
 ## Use in Gradle
 
-To use SecondChat with Gradle you can
-use [my own repository](https://maven.florianreuth.de/#/releases/de/florianreuth/secondchat).  
-You will find instructions on how to add it into your build script there.
+If you want to depend on SecondChat in your own project, use the Maven repository here:
+
+https://maven.florianreuth.de/#/releases/de/florianreuth/secondchat
+
+The repository page includes the latest coordinates and setup instructions.
 
 ## Contact
 
-If you encounter any issues, please report them on
-the [issue tracker](https://github.com/florianreuth/SecondChat/issues). If you just want to talk or need help with
-SecondChat feel free to join my [Discord](https://florianreuth.de/discord).
+- Issues: https://github.com/florianreuth/SecondChat/issues
+- Discord: https://florianreuth.de/discord
