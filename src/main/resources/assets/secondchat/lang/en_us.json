@@ -2,11 +2,27 @@
   "modmenu.descriptionTranslation.secondchat": "Fabric mod to add another optional chat hud.",
 
   "secondchat.config.title": "SecondChat Configuration",
+  "secondchat.config.add.title": "Add Rule",
+  "secondchat.config.edit.title": "Edit Rule",
 
+  "secondchat.config.column.filter": "Filter",
+  "secondchat.config.column.server": "Server",
+  "secondchat.config.column.type": "Type",
+
+  "secondchat.config.button.add": "Add",
+  "secondchat.config.button.edit": "Edit",
+  "secondchat.config.button.delete": "Delete",
+  "secondchat.config.save": "Save",
+  "secondchat.config.cancel": "Cancel",
+
+  "secondchat.config.filter.hint": "Filter text",
   "secondchat.config.filter.equals": "Equals",
   "secondchat.config.filter.equals_ignore_case": "Equals (ignore case)",
   "secondchat.config.filter.contains": "Contains",
   "secondchat.config.filter.starts_with": "Starts with",
   "secondchat.config.filter.ends_with": "Ends with",
-  "secondchat.config.filter.regex": "Regex"
+  "secondchat.config.filter.regex": "Regex",
+
+  "secondchat.config.server.hint": "Server (optional)",
+  "secondchat.config.server.all": "All"
 }

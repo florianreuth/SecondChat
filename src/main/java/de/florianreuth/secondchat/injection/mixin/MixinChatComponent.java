@@ -24,6 +24,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.chat.GuiMessageSource;
 import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
@@ -40,7 +41,8 @@ public abstract class MixinChatComponent {
     @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
     public void proxyMessages(Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            final boolean cancel = SecondChat.instance().matches(ChatFormatting.stripFormatting(contents.getString()));
+            final ServerData currentServer = Minecraft.getInstance().getCurrentServer();
+            final boolean cancel = SecondChat.instance().matches(ChatFormatting.stripFormatting(contents.getString()), currentServer != null ? currentServer.ip : null);
             if (!cancel) {
                 return;
             }
@@ -51,16 +53,16 @@ public abstract class MixinChatComponent {
     }
 
     @Inject(method = "deleteMessage", at = @At("RETURN"))
-    public void proxyMessages(MessageSignature messageSignature, CallbackInfo ci) {
+    public void proxyDeleteMessage(MessageSignature signature, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            secondChat$getChatHud().deleteMessage(messageSignature);
+            secondChat$getChatHud().deleteMessage(signature);
         }
     }
 
     @Inject(method = "clearMessages", at = @At("RETURN"))
-    public void clearSecondChat(boolean clearHistory, CallbackInfo ci) {
+    public void clearSecondChat(boolean history, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            secondChat$getChatHud().clearMessages(clearHistory);
+            secondChat$getChatHud().clearMessages(history);
         }
     }
 

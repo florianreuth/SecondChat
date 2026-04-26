@@ -23,31 +23,24 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.NonNull;
 
 public final class ConfigScreen extends Screen {
-    private static final int RED_TRANSPARENT = 0x80FF0000;
-    private static final int PADDING = 3;
 
-    // They sum up to 300
-    private static final int TEXT_FIELD_WIDTH = 150;
-    private static final int FILTER_BUTTON_WIDTH = 130;
-    private static final int ADD_BUTTON_WIDTH = 20;
+    private static final int SELECTED_COLOR = 0x4000AAFF;
+    private static final int PADDING = 3;
+    private static final int BUTTON_WIDTH = 60;
 
     private final Screen parent;
-
-    private EditBox editBox;
-    private Button addButton;
-    private FilterType filterType = FilterType.CONTAINS;
-
-    private FilterRule alreadyAdded;
+    private SlotList slotList;
+    private Button editButton;
+    private Button deleteButton;
 
     public ConfigScreen(final Screen parent) {
         super(Component.translatable("secondchat.config.title"));
@@ -57,87 +50,70 @@ public final class ConfigScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(new SlotList(
-            this.minecraft,
-            width,
-            height,
-            PADDING + PADDING + (font.lineHeight + 2) * PADDING /* title is 2 */,
-            30,
-            font.lineHeight + ListEntry.INNER_PADDING * 4
-        ));
+        slotList = addRenderableWidget(new SlotList(minecraft, width, height, PADDING + PADDING + (font.lineHeight + 2) * PADDING, Button.DEFAULT_HEIGHT + PADDING * 2));
 
-        final int y = height - Button.DEFAULT_HEIGHT - PADDING - 1;
-        int x = width / 2 - TEXT_FIELD_WIDTH - PADDING - PADDING;
-        editBox = addRenderableWidget(new EditBox(this.font, x, y, TEXT_FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
-        editBox.setMaxLength(Integer.MAX_VALUE);
-
-        x += TEXT_FIELD_WIDTH + PADDING;
-        addRenderableWidget(Button
-            .builder(getFilterTypeText(filterType), button -> {
-                filterType = FilterType.values()[(filterType.ordinal() + 1) % FilterType.values().length];
-                button.setMessage(getFilterTypeText(filterType));
-            })
-            .pos(x, y)
-            .size(FILTER_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
-            .build());
-
-        x += FILTER_BUTTON_WIDTH + PADDING;
-        addButton = addRenderableWidget(Button
-            .builder(Component.literal("+"), button -> {
-                SecondChat.instance().add(new FilterRule(editBox.getValue(), filterType));
-                minecraft.setScreen(new ConfigScreen(parent));
-            })
-            .pos(x, y)
-            .size(ADD_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
-            .build());
-        addButton.active = false;
+        final int y = height - Button.DEFAULT_HEIGHT - PADDING;
+        final int groupWidth = BUTTON_WIDTH + PADDING + BUTTON_WIDTH + PADDING + BUTTON_WIDTH;
+        int x = width / 2 - groupWidth / 2;
 
         addRenderableWidget(Button
-            .builder(Component.literal("<-"), button -> minecraft.setScreen(parent))
-            .pos(PADDING, y)
-            .size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT)
-            .build());
-    }
+            .builder(Component.translatable("secondchat.config.button.add"), _ -> minecraft.setScreen(new EditRuleScreen(this, null)))
+            .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
+        x += BUTTON_WIDTH + PADDING;
 
-    private Component getFilterTypeText(final FilterType filterType) {
-        return Component.translatable("secondchat.config.filter." + filterType.name().toLowerCase()).withStyle(ChatFormatting.GOLD);
+        editButton = addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.button.edit"), _ -> {
+                final ListEntry selected = slotList.getSelected();
+                if (selected != null) {
+                    minecraft.setScreen(new EditRuleScreen(this, selected.rule));
+                }
+            })
+            .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
+        editButton.active = false;
+        x += BUTTON_WIDTH + PADDING;
+
+        deleteButton = addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.button.delete"), _ -> {
+                final ListEntry selected = slotList.getSelected();
+                if (selected != null) {
+                    SecondChat.instance().remove(selected.rule);
+                    minecraft.setScreen(new ConfigScreen(parent));
+                }
+            })
+            .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
+        deleteButton.active = false;
+
+        addRenderableWidget(Button
+            .builder(Component.literal("←"), _ -> minecraft.setScreen(parent))
+            .pos(PADDING, y).size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT).build());
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (addButton == null) {
-            return;
-        }
+        if (slotList == null) return;
 
-        addButton.active = !editBox.getValue().isEmpty();
-        if (!addButton.active) {
-            return;
-        }
-
-        SecondChat.instance().rules().stream()
-            .filter(rule -> rule.value().equals(editBox.getValue()) && rule.type() == filterType)
-            .findAny()
-            .ifPresentOrElse(filterRule -> this.alreadyAdded = filterRule, () -> this.alreadyAdded = null);
-        addButton.active = alreadyAdded == null;
+        final boolean hasSelection = slotList.getSelected() != null;
+        if (editButton != null) editButton.active = hasSelection;
+        if (deleteButton != null) deleteButton.active = hasSelection;
     }
 
     @Override
-    public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float partialTick) {
+    public void extractRenderState(final @NonNull GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         final Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         pose.scale(2.0F, 2.0F);
-        graphics.text(font, title, this.width / 4 - font.width(title) / 2, 5, -1, true);
+        graphics.text(font, title, width / 4 - font.width(title) / 2, PADDING + 1, -1, true);
         pose.popMatrix();
     }
 
     public class SlotList extends ObjectSelectionList<ListEntry> {
 
-        public SlotList(Minecraft minecraft, int width, int height, int top, int bottom, int entryHeight) {
-            super(minecraft, width, height - top - bottom, top, entryHeight);
-
+        SlotList(final Minecraft minecraft, final int width, final int height, final int top, final int bottom) {
+            super(minecraft, width, height - top - bottom, top,
+                minecraft.font.lineHeight * 2 + ListEntry.VERTICAL_PADDING);
             SecondChat.instance().rules().forEach(rule -> addEntry(new ListEntry(rule)));
         }
 
@@ -145,51 +121,64 @@ public final class ConfigScreen extends Screen {
         public int getRowWidth() {
             return super.getRowWidth() + 150;
         }
-
-        @Override
-        protected void extractSelection(final GuiGraphicsExtractor graphics, final ListEntry entry, final int outlineColor) {
-            // Remove selection box
-        }
     }
 
     public class ListEntry extends ObjectSelectionList.Entry<ListEntry> {
-        public static final int INNER_PADDING = 2;
 
-        private final FilterRule rule;
+        static final int VERTICAL_PADDING = 8;
+        private static final int INNER_PADDING = 3;
 
-        public ListEntry(FilterRule rule) {
+        final FilterRule rule;
+
+        ListEntry(final FilterRule rule) {
             this.rule = rule;
         }
 
         @Override
         public @NotNull Component getNarration() {
-            return getFilterTypeText(rule.type());
+            return Component.literal(rule.value());
         }
 
         @Override
-        public boolean mouseClicked(final MouseButtonEvent mouseButtonEvent, final boolean bl) {
-            SecondChat.instance().remove(rule);
-            minecraft.setScreen(new ConfigScreen(parent));
-            return super.mouseClicked(mouseButtonEvent, bl);
+        public boolean mouseClicked(final @NonNull MouseButtonEvent event, final boolean bl) {
+            slotList.setSelected(this);
+            return true;
         }
 
         @Override
         public void extractContent(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final boolean hovered, final float a) {
             final Matrix3x2fStack pose = graphics.pose();
-
             final int width = getContentWidth();
             final int height = getContentHeight();
+            final int lineHeight = font.lineHeight;
+            final int y1 = (height - lineHeight * 2 - 2) / 2;
 
-            final int color = ConfigScreen.this.alreadyAdded == rule ? RED_TRANSPARENT : Integer.MIN_VALUE;
             pose.pushMatrix();
             pose.translate(getContentX(), getContentY());
-            graphics.fill(0, 0, width - INNER_PADDING * 2, height, color);
 
-            final MutableComponent base = Component.literal(rule.value());
-            graphics.text(font, hovered ? base.withStyle(ChatFormatting.ITALIC, ChatFormatting.RED) : base, INNER_PADDING, INNER_PADDING, -1);
+            // Line 1: filter value, truncated to fit
+            String valueStr = rule.value();
+            final int maxWidth = width - INNER_PADDING * 2;
+            if (font.width(valueStr) > maxWidth) {
+                while (!valueStr.isEmpty() && font.width(valueStr + "...") > maxWidth) {
+                    valueStr = valueStr.substring(0, valueStr.length() - 1);
+                }
+                valueStr += "...";
+            }
+            graphics.text(font, Component.literal(valueStr), INNER_PADDING, y1, -1);
 
-            final Component narration = Component.literal("").append(getNarration()).withStyle(ChatFormatting.GOLD);
-            graphics.text(font, narration, width - font.width(narration) - INNER_PADDING * 2, INNER_PADDING, -1);
+            // Line 2: type | server
+            final Component typeText = Component.translatable("secondchat.config.filter." + rule.type().name().toLowerCase())
+                .withStyle(ChatFormatting.GOLD);
+            final Component serverText = rule.server() == null
+                ? Component.translatable("secondchat.config.server.all").withStyle(ChatFormatting.DARK_GRAY)
+                : Component.literal(rule.server()).withStyle(ChatFormatting.GRAY);
+            final Component subtitle = Component.empty()
+                .append(typeText)
+                .append(Component.literal(" | ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(serverText);
+            graphics.text(font, subtitle, INNER_PADDING, y1 + lineHeight + 2, -1);
+
             pose.popMatrix();
         }
     }

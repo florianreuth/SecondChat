@@ -27,7 +27,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
@@ -35,7 +34,7 @@ import org.apache.logging.log4j.Logger;
 
 public final class SecondChat implements ClientModInitializer {
 
-    private /*final*/ static SecondChat INSTANCE;
+    private static SecondChat INSTANCE;
 
     private final Logger logger = LogManager.getLogger("SecondChat");
     private final Path config = FabricLoader.getInstance().getConfigDir().resolve("secondchat.json");
@@ -54,7 +53,7 @@ public final class SecondChat implements ClientModInitializer {
         if (Files.exists(config)) {
             try {
                 final FilterRule[] rules = gson.fromJson(Files.readString(config), FilterRule[].class);
-                this.rules = rules == null ? new ArrayList<>() : Arrays.stream(rules).collect(Collectors.toList());
+                this.rules = rules == null ? new ArrayList<>() : new ArrayList<>(Arrays.asList(rules));
             } catch (Exception e) {
                 logger.error("Failed to read file: {}!", config.toString(), e);
             }
@@ -81,15 +80,27 @@ public final class SecondChat implements ClientModInitializer {
         save();
     }
 
-    public boolean matches(final String input) {
-        return rules.stream().anyMatch(rule -> switch (rule.type()) {
-            case EQUALS -> input.equals(rule.value());
-            case EQUALS_IGNORE_CASE -> input.equalsIgnoreCase(rule.value());
-            case STARTS_WITH -> input.startsWith(rule.value());
-            case ENDS_WITH -> input.endsWith(rule.value());
-            case CONTAINS -> input.contains(rule.value());
-            case REGEX -> input.matches(rule.value());
-        });
+    public void update(final FilterRule old, final FilterRule updated) {
+        final int index = rules.indexOf(old);
+        if (index >= 0) {
+            rules.set(index, updated);
+        } else {
+            rules.add(updated);
+        }
+        save();
+    }
+
+    public boolean matches(final String input, final String server) {
+        return rules.stream()
+            .filter(rule -> rule.matchesServer(server))
+            .anyMatch(rule -> switch (rule.type()) {
+                case EQUALS -> input.equals(rule.value());
+                case EQUALS_IGNORE_CASE -> input.equalsIgnoreCase(rule.value());
+                case STARTS_WITH -> input.startsWith(rule.value());
+                case ENDS_WITH -> input.endsWith(rule.value());
+                case CONTAINS -> input.contains(rule.value());
+                case REGEX -> input.matches(rule.value());
+            });
     }
 
     public List<FilterRule> rules() {

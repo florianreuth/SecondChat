@@ -18,5 +18,12 @@
 
 package de.florianreuth.secondchat.filter;
 
-public record FilterRule(String value, FilterType type) {
+import org.jspecify.annotations.Nullable;
+
+public record FilterRule(String value, @Nullable String server, FilterType type) {
+
+    public boolean matchesServer(final String server) {
+        return this.server == null || this.server.equalsIgnoreCase(server);
+    }
+
 }

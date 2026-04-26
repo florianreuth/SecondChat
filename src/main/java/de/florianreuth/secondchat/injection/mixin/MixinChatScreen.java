@@ -56,21 +56,21 @@ public abstract class MixinChatScreen extends Screen {
     private ChatComponent.DisplayMode displayMode;
 
     @WrapOperation(method = {"keyPressed", "mouseScrolled"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;scrollChat(I)V"))
-    private void scrollSecondChat(ChatComponent instance, int posInc, Operation<Void> original) {
+    private void scrollSecondChat(ChatComponent instance, int dir, Operation<Void> original) {
         if (secondChat$mainChatFocused) {
-            original.call(instance, posInc);
+            original.call(instance, dir);
         } else {
-            secondChat$getChatHud().scrollChat(posInc);
+            secondChat$getChatHud().scrollChat(dir);
         }
     }
 
     @WrapOperation(method = "mouseClicked", at = @At(value = "NEW", target = "(Lnet/minecraft/client/gui/Font;II)Lnet/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder;"))
-    private ActiveTextCollector.ClickableStyleFinder clickSecondChat(Font font, int mouseX, int mouseY, Operation<ActiveTextCollector.ClickableStyleFinder> original) {
+    private ActiveTextCollector.ClickableStyleFinder clickSecondChat(Font font, int mouseX, int testY, Operation<ActiveTextCollector.ClickableStyleFinder> original) {
         if (!secondChat$mainChatFocused) {
             mouseX = secondChat$fixMouseX(mouseX);
         }
 
-        return original.call(font, mouseX, mouseY);
+        return original.call(font, mouseX, testY);
     }
 
     @Redirect(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getChat()Lnet/minecraft/client/gui/components/ChatComponent;"))
