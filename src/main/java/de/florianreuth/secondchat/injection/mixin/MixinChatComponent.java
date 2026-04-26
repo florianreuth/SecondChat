@@ -20,6 +20,7 @@ package de.florianreuth.secondchat.injection.mixin;
 
 import de.florianreuth.secondchat.SecondChat;
 import de.florianreuth.secondchat.injection.access.IGui;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -39,7 +40,7 @@ public abstract class MixinChatComponent {
     @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
     public void proxyMessages(Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.getChat()) {
-            final boolean cancel = SecondChat.instance().matches(contents.getString());
+            final boolean cancel = SecondChat.instance().matches(ChatFormatting.stripFormatting(contents.getString()));
             if (!cancel) {
                 return;
             }
