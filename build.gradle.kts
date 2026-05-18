@@ -21,5 +21,5 @@ dependencies {
     jij(fabricApi.module("fabric-screen-api-v1", fabricApiVersion))
     jij(fabricApi.module("fabric-lifecycle-events-v1", fabricApiVersion))
 
-    compileOnly("com.terraformersmc:modmenu:18.0.0-alpha.8")
+    compileOnly("com.terraformersmc:modmenu:19.0.0-alpha.1")
 }
