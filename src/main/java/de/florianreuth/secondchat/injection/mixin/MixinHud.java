@@ -18,12 +18,12 @@
 
 package de.florianreuth.secondchat.injection.mixin;
 
-import de.florianreuth.secondchat.filter.ChatConfig;
 import de.florianreuth.secondchat.SecondChat;
+import de.florianreuth.secondchat.filter.ChatConfig;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.components.ChatComponent;
 import org.joml.Matrix3x2fStack;
 import org.objectweb.asm.Opcodes;
@@ -36,8 +36,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Gui.class)
-public abstract class MixinGui {
+@Mixin(Hud.class)
+public abstract class MixinHud {
 
     @Shadow
     @Final
@@ -56,7 +56,7 @@ public abstract class MixinGui {
         }
     }
 
-    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;extractChat(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Hud;extractChat(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
     private void renderSecondChats(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
             config.ensureInitialized(Minecraft.getInstance());
@@ -74,8 +74,8 @@ public abstract class MixinGui {
         this.secondChat$currentChat = null;
     }
 
-    @Redirect(method = "extractChat", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/Gui;chat:Lnet/minecraft/client/gui/components/ChatComponent;", opcode = Opcodes.GETFIELD))
-    private ChatComponent replaceChatComponent(Gui instance) {
+    @Redirect(method = "extractChat", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/Hud;chat:Lnet/minecraft/client/gui/components/ChatComponent;", opcode = Opcodes.GETFIELD))
+    private ChatComponent replaceChatComponent(Hud instance) {
         return this.secondChat$currentChat != null ? this.secondChat$currentChat : chat;
     }
 

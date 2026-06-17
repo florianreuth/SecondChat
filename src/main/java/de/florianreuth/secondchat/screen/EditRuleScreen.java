@@ -101,7 +101,7 @@ public final class EditRuleScreen extends Screen {
         this.saveButton.active = this.existing != null;
 
         addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.cancel"), _ -> minecraft.setScreen(new EditChatScreen(this.parent, this.chatConfig)))
+            .builder(Component.translatable("secondchat.config.cancel"), _ -> minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig)))
             .pos(centerX + PADDING / 2, y)
             .size(ACTION_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
             .build());
@@ -117,7 +117,7 @@ public final class EditRuleScreen extends Screen {
 
     @Override
     public void onClose() {
-        minecraft.setScreen(new EditChatScreen(this.parent, this.chatConfig));
+        minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig));
     }
 
     private Component getFilterTypeText(final FilterType type) {
@@ -132,7 +132,7 @@ public final class EditRuleScreen extends Screen {
         } else {
             this.chatConfig.addRule(updated);
         }
-        minecraft.setScreen(new EditChatScreen(this.parent, this.chatConfig));
+        minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig));
     }
 
     @Override

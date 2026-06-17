@@ -100,7 +100,7 @@ public final class EditChatScreen extends Screen {
         this.saveButton.active = false;
 
         addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.cancel"), _ -> minecraft.setScreen(new ConfigScreen(parent)))
+            .builder(Component.translatable("secondchat.config.cancel"), _ -> minecraft.gui.setScreen(new ConfigScreen(parent)))
             .pos(centerX + PADDING / 2, y)
             .size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
             .build());
@@ -130,7 +130,7 @@ public final class EditChatScreen extends Screen {
         int bx = width / 2 - groupWidth / 2;
 
         addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.button.add.rule"), _ -> minecraft.setScreen(new EditRuleScreen(this.parent, this.config, null)))
+            .builder(Component.translatable("secondchat.config.button.add.rule"), _ -> minecraft.gui.setScreen(new EditRuleScreen(this.parent, this.config, null)))
             .pos(bx, buttonsY).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         bx += BUTTON_WIDTH + PADDING;
 
@@ -148,7 +148,7 @@ public final class EditChatScreen extends Screen {
                 final RuleEntry selected = this.ruleList != null ? this.ruleList.getSelected() : null;
                 if (selected != null) {
                     this.config.removeRule(selected.rule);
-                    minecraft.setScreen(new EditChatScreen(this.parent, this.config));
+                    minecraft.gui.setScreen(new EditChatScreen(this.parent, this.config));
                 }
             })
             .pos(bx, buttonsY).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
@@ -158,7 +158,7 @@ public final class EditChatScreen extends Screen {
         addRenderableWidget(Button
             .builder(Component.translatable("secondchat.config.button.clear"), _ -> {
                 this.config.clearRules();
-                minecraft.setScreen(new EditChatScreen(this.parent, this.config));
+                minecraft.gui.setScreen(new EditChatScreen(this.parent, this.config));
             })
             .pos(bx, buttonsY).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
 
@@ -186,7 +186,7 @@ public final class EditChatScreen extends Screen {
         if (this.config != null) {
             done();
         } else {
-            minecraft.setScreen(new ConfigScreen(parent));
+            minecraft.gui.setScreen(new ConfigScreen(parent));
         }
     }
 
@@ -196,7 +196,7 @@ public final class EditChatScreen extends Screen {
 
         final ChatConfig newConfig = new ChatConfig(name, this.xSlider.getValue(), this.ySlider.getValue());
         SecondChat.instance().addChat(newConfig);
-        minecraft.setScreen(new ConfigScreen(this.parent));
+        minecraft.gui.setScreen(new ConfigScreen(this.parent));
     }
 
     private void done() {
@@ -206,12 +206,12 @@ public final class EditChatScreen extends Screen {
                 this.config.updateChat(name, this.xSlider.getValue(), this.ySlider.getValue());
             }
         }
-        minecraft.setScreen(new ConfigScreen(this.parent));
+        minecraft.gui.setScreen(new ConfigScreen(this.parent));
     }
 
     private void openEditRuleScreen(final FilterRule rule) {
         if (this.config != null) {
-            this.minecraft.setScreen(new EditRuleScreen(this.parent, this.config, rule));
+            this.minecraft.gui.setScreen(new EditRuleScreen(this.parent, this.config, rule));
         }
     }
 

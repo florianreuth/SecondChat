@@ -57,7 +57,7 @@ public final class ConfigScreen extends Screen {
         int x = width / 2 - groupWidth / 2;
 
         addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.button.add"), _ -> minecraft.setScreen(new EditChatScreen(parent, null)))
+            .builder(Component.translatable("secondchat.config.button.add"), _ -> minecraft.gui.setScreen(new EditChatScreen(parent, null)))
             .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         x += BUTTON_WIDTH + PADDING;
 
@@ -77,14 +77,14 @@ public final class ConfigScreen extends Screen {
                 final ListEntry selected = slotList.getSelected();
                 if (selected != null) {
                     SecondChat.instance().removeChat(selected.config);
-                    minecraft.setScreen(new ConfigScreen(parent));
+                    minecraft.gui.setScreen(new ConfigScreen(parent));
                 }
             })
             .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         this.deleteButton.active = false;
 
         addRenderableWidget(Button
-            .builder(Component.literal("←"), _ -> minecraft.setScreen(parent))
+            .builder(Component.literal("←"), _ -> minecraft.gui.setScreen(parent))
             .pos(PADDING, y).size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT).build());
     }
 
@@ -99,7 +99,7 @@ public final class ConfigScreen extends Screen {
     }
 
     private void openEditChatScreen(final ChatConfig config) {
-        this.minecraft.setScreen(new EditChatScreen(this.parent, config));
+        this.minecraft.gui.setScreen(new EditChatScreen(this.parent, config));
     }
 
     @Override

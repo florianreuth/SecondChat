@@ -38,7 +38,7 @@ public abstract class MixinChatComponent {
 
     @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
     private void proxyMessages(Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
-        if ((Object) this == Minecraft.getInstance().gui.getChat()) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             final ServerData currentServer = Minecraft.getInstance().getCurrentServer();
             final String server = currentServer != null ? currentServer.ip : null;
             final String text = ChatFormatting.stripFormatting(contents.getString());
@@ -56,7 +56,7 @@ public abstract class MixinChatComponent {
 
     @Inject(method = "deleteMessage", at = @At("RETURN"))
     private void proxyDeleteMessage(MessageSignature signature, CallbackInfo ci) {
-        if ((Object) this == Minecraft.getInstance().gui.getChat()) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
                 if (config.chatComponent() != null) config.chatComponent().deleteMessage(signature);
             }
@@ -65,7 +65,7 @@ public abstract class MixinChatComponent {
 
     @Inject(method = "clearMessages", at = @At("RETURN"))
     private void clearAdditionalChats(boolean history, CallbackInfo ci) {
-        if ((Object) this == Minecraft.getInstance().gui.getChat()) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
                 if (config.chatComponent() != null) config.chatComponent().clearMessages(history);
             }
@@ -74,7 +74,7 @@ public abstract class MixinChatComponent {
 
     @Inject(method = "rescaleChat", at = @At("RETURN"))
     private void rescaleAdditionalChats(CallbackInfo ci) {
-        if ((Object) this == Minecraft.getInstance().gui.getChat()) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
                 if (config.chatComponent() != null) config.chatComponent().rescaleChat();
             }
@@ -83,7 +83,7 @@ public abstract class MixinChatComponent {
 
     @Inject(method = "resetChatScroll", at = @At("RETURN"))
     private void resetAdditionalChatsScroll(CallbackInfo ci) {
-        if ((Object) this == Minecraft.getInstance().gui.getChat()) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
                 if (config.chatComponent() != null) config.chatComponent().resetChatScroll();
             }

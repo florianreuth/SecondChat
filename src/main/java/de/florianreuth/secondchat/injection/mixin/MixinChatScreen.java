@@ -24,8 +24,8 @@ import de.florianreuth.secondchat.SecondChat;
 import de.florianreuth.secondchat.filter.ChatConfig;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -74,8 +74,8 @@ public abstract class MixinChatScreen extends Screen {
         return original.call(font, mouseX, testY);
     }
 
-    @Redirect(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getChat()Lnet/minecraft/client/gui/components/ChatComponent;"))
-    private ChatComponent clickAdditionalChats(Gui instance) {
+    @Redirect(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Hud;getChat()Lnet/minecraft/client/gui/components/ChatComponent;"))
+    private ChatComponent clickAdditionalChats(Hud instance) {
         return this.secondChat$focusedConfig == null ? instance.getChat() : this.secondChat$focusedConfig.chatComponent();
     }
 
@@ -91,7 +91,7 @@ public abstract class MixinChatScreen extends Screen {
             final Matrix3x2fStack pose = graphics.pose();
             pose.pushMatrix();
             pose.translate(translateX, translateY);
-            config.chatComponent().extractRenderState(graphics, font, minecraft.gui.getGuiTicks(), mouseX, mouseY, displayMode, insertionClickMode());
+            config.chatComponent().extractRenderState(graphics, font, minecraft.gui.hud.getGuiTicks(), mouseX, mouseY, displayMode, insertionClickMode());
             pose.popMatrix();
 
             if (secondChat$isMouseOver(config, mouseX, mouseY)) {
