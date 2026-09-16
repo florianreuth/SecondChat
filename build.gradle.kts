@@ -25,5 +25,5 @@ dependencies {
     shade(fabricApi.module("fabric-screen-api-v1", fabricApiVersion))
     shade(fabricApi.module("fabric-lifecycle-events-v1", fabricApiVersion))
 
-    compileOnly("com.terraformersmc:modmenu:20.0.0-beta.2")
+    compileOnly("com.terraformersmc:modmenu:21.0.0-beta.1")
 }
