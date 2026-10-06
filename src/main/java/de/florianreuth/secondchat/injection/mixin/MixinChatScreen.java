@@ -68,8 +68,8 @@ public abstract class MixinChatScreen extends Screen {
     @WrapOperation(method = "mouseClicked", at = @At(value = "NEW", target = "(Lnet/minecraft/client/gui/Font;II)Lnet/minecraft/client/gui/ActiveTextCollector$ClickableStyleFinder;"))
     private ActiveTextCollector.ClickableStyleFinder clickAdditionalChats(Font font, int mouseX, int testY, Operation<ActiveTextCollector.ClickableStyleFinder> original) {
         if (this.secondChat$focusedConfig != null) {
-            mouseX = mouseX - secondChat$translateX(this.secondChat$focusedConfig);
-            testY = testY - secondChat$translateY(this.secondChat$focusedConfig);
+            mouseX = mouseX - this.secondChat$translateX(this.secondChat$focusedConfig);
+            testY = testY - this.secondChat$translateY(this.secondChat$focusedConfig);
         }
         return original.call(font, mouseX, testY);
     }
@@ -84,17 +84,19 @@ public abstract class MixinChatScreen extends Screen {
         this.secondChat$focusedConfig = null;
 
         for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
-            if (config.chatComponent() == null) continue;
+            if (config.chatComponent() == null) {
+                continue;
+            }
 
-            final int translateX = secondChat$translateX(config);
-            final int translateY = secondChat$translateY(config);
+            final int translateX = this.secondChat$translateX(config);
+            final int translateY = this.secondChat$translateY(config);
             final Matrix3x2fStack pose = graphics.pose();
             pose.pushMatrix();
             pose.translate(translateX, translateY);
-            config.chatComponent().extractRenderState(graphics, font, minecraft.gui.hud.getGuiTicks(), mouseX, mouseY, displayMode, insertionClickMode());
+            config.chatComponent().extractRenderState(graphics, this.font, this.minecraft.gui.hud.getGuiTicks(), mouseX, mouseY, this.displayMode, this.insertionClickMode());
             pose.popMatrix();
 
-            if (secondChat$isMouseOver(config, mouseX, mouseY)) {
+            if (this.secondChat$isMouseOver(config, mouseX, mouseY)) {
                 this.secondChat$focusedConfig = config;
             }
         }
@@ -102,11 +104,13 @@ public abstract class MixinChatScreen extends Screen {
 
     @Unique
     private boolean secondChat$isMouseOver(final ChatConfig config, final int mouseX, final int mouseY) {
-        if (config.chatComponent() == null) return false;
+        if (config.chatComponent() == null) {
+            return false;
+        }
 
-        final int left = secondChat$translateX(config);
+        final int left = this.secondChat$translateX(config);
         final int right = left + config.chatComponent().getWidth();
-        final int anchorY = this.height - 40 + secondChat$translateY(config);
+        final int anchorY = this.height - 40 + this.secondChat$translateY(config);
         final int top = anchorY - config.chatComponent().getHeight();
         final int bottom = anchorY + this.font.lineHeight;
 
@@ -115,14 +119,17 @@ public abstract class MixinChatScreen extends Screen {
 
     @Unique
     private int secondChat$translateX(final ChatConfig config) {
-        if (config.chatComponent() == null) return 0;
-        final int guiWidth = minecraft.getWindow().getGuiScaledWidth();
+        if (config.chatComponent() == null) {
+            return 0;
+        }
+
+        final int guiWidth = this.minecraft.getWindow().getGuiScaledWidth();
         return (int) ((config.x() / 100.0F) * Math.max(0, guiWidth - config.chatComponent().getWidth()));
     }
 
     @Unique
     private int secondChat$translateY(final ChatConfig config) {
-        return (int) ((config.y() - 100) / 100.0F * height);
+        return (int) ((config.y() - 100) / 100.0F * this.height);
     }
 
 }

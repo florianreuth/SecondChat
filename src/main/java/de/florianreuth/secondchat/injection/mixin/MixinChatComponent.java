@@ -50,7 +50,9 @@ public abstract class MixinChatComponent {
                     matched = true;
                 }
             }
-            if (matched) ci.cancel();
+            if (matched) {
+                ci.cancel();
+            }
         }
     }
 
@@ -58,7 +60,9 @@ public abstract class MixinChatComponent {
     private void proxyDeleteMessage(MessageSignature signature, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
-                if (config.chatComponent() != null) config.chatComponent().deleteMessage(signature);
+                if (config.chatComponent() != null) {
+                    config.chatComponent().deleteMessage(signature);
+                }
             }
         }
     }
@@ -67,7 +71,9 @@ public abstract class MixinChatComponent {
     private void clearAdditionalChats(boolean history, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
-                if (config.chatComponent() != null) config.chatComponent().clearMessages(history);
+                if (config.chatComponent() != null) {
+                    config.chatComponent().clearMessages(history);
+                }
             }
         }
     }
@@ -76,7 +82,9 @@ public abstract class MixinChatComponent {
     private void rescaleAdditionalChats(CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
-                if (config.chatComponent() != null) config.chatComponent().rescaleChat();
+                if (config.chatComponent() != null) {
+                    config.chatComponent().rescaleChat();
+                }
             }
         }
     }
@@ -85,7 +93,9 @@ public abstract class MixinChatComponent {
     private void resetAdditionalChatsScroll(CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
             for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
-                if (config.chatComponent() != null) config.chatComponent().resetChatScroll();
+                if (config.chatComponent() != null) {
+                    config.chatComponent().resetChatScroll();
+                }
             }
         }
     }

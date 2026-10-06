@@ -50,52 +50,58 @@ public final class ConfigScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.slotList = addRenderableWidget(new SlotList(minecraft, width, height, PADDING + PADDING + (font.lineHeight + 2) * PADDING, Button.DEFAULT_HEIGHT + PADDING * 2));
+        this.slotList = this.addRenderableWidget(new SlotList(this.minecraft, this.width, this.height, PADDING + PADDING + (this.font.lineHeight + 2) * PADDING, Button.DEFAULT_HEIGHT + PADDING * 2));
 
-        final int y = height - Button.DEFAULT_HEIGHT - PADDING;
+        final int y = this.height - Button.DEFAULT_HEIGHT - PADDING;
         final int groupWidth = BUTTON_WIDTH + PADDING + BUTTON_WIDTH + PADDING + BUTTON_WIDTH;
-        int x = width / 2 - groupWidth / 2;
+        int x = this.width / 2 - groupWidth / 2;
 
-        addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.button.add"), _ -> minecraft.gui.setScreen(new EditChatScreen(parent, null)))
+        this.addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.button.add"), _ -> this.minecraft.gui.setScreen(new EditChatScreen(this.parent, null)))
             .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         x += BUTTON_WIDTH + PADDING;
 
-        this.editButton = addRenderableWidget(Button
+        this.editButton = this.addRenderableWidget(Button
             .builder(Component.translatable("secondchat.config.button.edit"), _ -> {
                 final ListEntry selected = this.slotList.getSelected();
                 if (selected != null) {
-                    openEditChatScreen(selected.config);
+                    this.openEditChatScreen(selected.config);
                 }
             })
             .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         this.editButton.active = false;
         x += BUTTON_WIDTH + PADDING;
 
-        this.deleteButton = addRenderableWidget(Button
+        this.deleteButton = this.addRenderableWidget(Button
             .builder(Component.translatable("secondchat.config.button.delete"), _ -> {
-                final ListEntry selected = slotList.getSelected();
+                final ListEntry selected = this.slotList.getSelected();
                 if (selected != null) {
                     SecondChat.instance().removeChat(selected.config);
-                    minecraft.gui.setScreen(new ConfigScreen(parent));
+                    this.minecraft.gui.setScreen(new ConfigScreen(this.parent));
                 }
             })
             .pos(x, y).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         this.deleteButton.active = false;
 
-        addRenderableWidget(Button
-            .builder(Component.literal("←"), _ -> minecraft.gui.setScreen(parent))
+        this.addRenderableWidget(Button
+            .builder(Component.literal("←"), _ -> this.minecraft.gui.setScreen(this.parent))
             .pos(PADDING, y).size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT).build());
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (slotList == null) return;
+        if (this.slotList == null) {
+            return;
+        }
 
         final boolean hasSelection = this.slotList.getSelected() != null;
-        if (this.editButton != null) this.editButton.active = hasSelection;
-        if (this.deleteButton != null) this.deleteButton.active = hasSelection;
+        if (this.editButton != null) {
+            this.editButton.active = hasSelection;
+        }
+        if (this.deleteButton != null) {
+            this.deleteButton.active = hasSelection;
+        }
     }
 
     private void openEditChatScreen(final ChatConfig config) {
@@ -109,7 +115,7 @@ public final class ConfigScreen extends Screen {
         final Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         pose.scale(2.0F, 2.0F);
-        graphics.text(font, title, width / 4 - font.width(title) / 2, PADDING + 2, -1, true);
+        graphics.text(this.font, this.title, this.width / 4 - this.font.width(this.title) / 2, PADDING + 2, -1, true);
         pose.popMatrix();
     }
 
@@ -117,7 +123,7 @@ public final class ConfigScreen extends Screen {
 
         SlotList(final Minecraft minecraft, final int width, final int height, final int top, final int bottom) {
             super(minecraft, width, height - top - bottom, top, minecraft.font.lineHeight * 2 + ListEntry.VERTICAL_PADDING);
-            SecondChat.instance().chatConfigs().forEach(config -> addEntry(new ListEntry(config)));
+            SecondChat.instance().chatConfigs().forEach(config -> this.addEntry(new ListEntry(config)));
         }
 
         @Override
@@ -154,18 +160,18 @@ public final class ConfigScreen extends Screen {
         @Override
         public void extractContent(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final boolean hovered, final float a) {
             final Matrix3x2fStack pose = graphics.pose();
-            final int height = getContentHeight();
-            final int lineHeight = font.lineHeight;
+            final int height = this.getContentHeight();
+            final int lineHeight = ConfigScreen.this.font.lineHeight;
             final int y1 = (height - lineHeight * 2 - 2) / 2;
 
             pose.pushMatrix();
-            pose.translate(getContentX(), getContentY());
+            pose.translate(this.getContentX(), this.getContentY());
 
-            graphics.text(font, Component.literal(this.config.name()), INNER_PADDING, y1, -1);
+            graphics.text(ConfigScreen.this.font, Component.literal(this.config.name()), INNER_PADDING, y1, -1);
 
             final Component posText = Component.literal("x=" + this.config.x() + "%  y=" + this.config.y() + "%").withStyle(ChatFormatting.DARK_GRAY);
             final Component ruleCount = Component.literal(" · " + this.config.rules().size() + " rules").withStyle(ChatFormatting.GOLD);
-            graphics.text(font, Component.empty().append(posText).append(ruleCount), INNER_PADDING, y1 + lineHeight + 2, -1);
+            graphics.text(ConfigScreen.this.font, Component.empty().append(posText).append(ruleCount), INNER_PADDING, y1 + lineHeight + 2, -1);
 
             pose.popMatrix();
         }

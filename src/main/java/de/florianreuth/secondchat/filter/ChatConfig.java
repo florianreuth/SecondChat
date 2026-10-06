@@ -100,7 +100,9 @@ public final class ChatConfig {
     }
 
     public boolean matches(final String input, @Nullable final String server) {
-        if (this.rules.isEmpty()) return false;
+        if (this.rules.isEmpty()) {
+            return false;
+        }
 
         return this.rules.stream()
             .filter(rule -> rule.matchesServer(server))

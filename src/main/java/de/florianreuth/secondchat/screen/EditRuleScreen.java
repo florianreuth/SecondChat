@@ -62,46 +62,50 @@ public final class EditRuleScreen extends Screen {
     protected void init() {
         super.init();
 
-        final int centerX = width / 2;
-        int y = height / 3;
+        final int centerX = this.width / 2;
+        int y = this.height / 3;
 
         this.valueLabelY = y;
-        y += font.lineHeight + 2;
-        this.valueBox = addRenderableWidget(new EditBox(font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
+        y += this.font.lineHeight + 2;
+        this.valueBox = this.addRenderableWidget(new EditBox(this.font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
         this.valueBox.setMaxLength(Integer.MAX_VALUE);
         this.valueBox.setHint(Component.translatable("secondchat.config.filter.hint").withStyle(ChatFormatting.DARK_GRAY));
-        if (this.existing != null) this.valueBox.setValue(this.existing.value());
+        if (this.existing != null) {
+            this.valueBox.setValue(this.existing.value());
+        }
         y += Button.DEFAULT_HEIGHT + PADDING;
 
         this.serverLabelY = y;
-        y += font.lineHeight + 2;
-        this.serverBox = addRenderableWidget(new EditBox(font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
+        y += this.font.lineHeight + 2;
+        this.serverBox = this.addRenderableWidget(new EditBox(this.font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
         this.serverBox.setMaxLength(253);
         this.serverBox.setHint(Component.translatable("secondchat.config.server.hint").withStyle(ChatFormatting.DARK_GRAY));
-        if (this.existing != null && this.existing.server() != null) this.serverBox.setValue(this.existing.server());
+        if (this.existing != null && this.existing.server() != null) {
+            this.serverBox.setValue(this.existing.server());
+        }
         y += Button.DEFAULT_HEIGHT + PADDING;
 
         this.typeLabelY = y;
-        y += font.lineHeight + 2;
-        addRenderableWidget(Button
-            .builder(getFilterTypeText(this.filterType), button -> {
+        y += this.font.lineHeight + 2;
+        this.addRenderableWidget(Button
+            .builder(this.getFilterTypeText(this.filterType), button -> {
                 this.filterType = FilterType.values()[(this.filterType.ordinal() + 1) % FilterType.values().length];
-                button.setMessage(getFilterTypeText(this.filterType));
+                button.setMessage(this.getFilterTypeText(this.filterType));
             })
             .pos(centerX - TYPE_BUTTON_WIDTH / 2, y)
             .size(TYPE_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
             .build());
         y += Button.DEFAULT_HEIGHT + PADDING * 2;
 
-        this.saveButton = addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.save"), _ -> save())
+        this.saveButton = this.addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.save"), _ -> this.save())
             .pos(centerX - ACTION_BUTTON_WIDTH - PADDING / 2, y)
             .size(ACTION_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
             .build());
         this.saveButton.active = this.existing != null;
 
-        addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.cancel"), _ -> minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig)))
+        this.addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.cancel"), _ -> this.minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig)))
             .pos(centerX + PADDING / 2, y)
             .size(ACTION_BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
             .build());
@@ -111,13 +115,13 @@ public final class EditRuleScreen extends Screen {
     public void tick() {
         super.tick();
         if (this.saveButton != null) {
-            this.saveButton.active = !valueBox.getValue().isEmpty();
+            this.saveButton.active = !this.valueBox.getValue().isEmpty();
         }
     }
 
     @Override
     public void onClose() {
-        minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig));
+        this.minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig));
     }
 
     private Component getFilterTypeText(final FilterType type) {
@@ -132,19 +136,19 @@ public final class EditRuleScreen extends Screen {
         } else {
             this.chatConfig.addRule(updated);
         }
-        minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig));
+        this.minecraft.gui.setScreen(new EditChatScreen(this.parent, this.chatConfig));
     }
 
     @Override
     public void extractRenderState(final @NonNull GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
-        final int centerX = width / 2;
+        final int centerX = this.width / 2;
         final int labelX = centerX - FIELD_WIDTH / 2;
-        graphics.text(font, title, centerX - font.width(title) / 2, PADDING * 2, -1, true);
-        graphics.text(font, Component.translatable("secondchat.config.column.filter"), labelX, this.valueLabelY, -1);
-        graphics.text(font, Component.translatable("secondchat.config.column.server"), labelX, this.serverLabelY, -1);
-        graphics.text(font, Component.translatable("secondchat.config.column.type"), labelX, this.typeLabelY, -1);
+        graphics.text(this.font, this.title, centerX - this.font.width(this.title) / 2, PADDING * 2, -1, true);
+        graphics.text(this.font, Component.translatable("secondchat.config.column.filter"), labelX, this.valueLabelY, -1);
+        graphics.text(this.font, Component.translatable("secondchat.config.column.server"), labelX, this.serverLabelY, -1);
+        graphics.text(this.font, Component.translatable("secondchat.config.column.type"), labelX, this.typeLabelY, -1);
     }
 
 }

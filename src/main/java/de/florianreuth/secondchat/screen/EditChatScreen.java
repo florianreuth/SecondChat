@@ -68,102 +68,104 @@ public final class EditChatScreen extends Screen {
     protected void init() {
         super.init();
 
-        final int centerX = width / 2;
+        final int centerX = this.width / 2;
         if (this.config == null) {
-            initNewChatForm(centerX);
+            this.initNewChatForm(centerX);
         } else {
-            initEditChatForm(centerX);
+            this.initEditChatForm(centerX);
         }
     }
 
     private void initNewChatForm(final int centerX) {
-        int y = height / 3;
+        int y = this.height / 3;
 
         this.nameLabelY = y;
-        y += font.lineHeight + 2;
-        this.nameBox = addRenderableWidget(new EditBox(font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
+        y += this.font.lineHeight + 2;
+        this.nameBox = this.addRenderableWidget(new EditBox(this.font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
         this.nameBox.setMaxLength(64);
         this.nameBox.setHint(Component.translatable("secondchat.chat.name.hint").withStyle(ChatFormatting.DARK_GRAY));
         y += Button.DEFAULT_HEIGHT + PADDING;
 
-        this.xSlider = addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.x"), 0));
+        this.xSlider = this.addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.x"), 0));
         y += Button.DEFAULT_HEIGHT + PADDING;
 
-        this.ySlider = addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.y"), 0));
+        this.ySlider = this.addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.y"), 0));
         y += Button.DEFAULT_HEIGHT + PADDING * 2;
 
-        this.saveButton = addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.save"), _ -> saveNewChat())
+        this.saveButton = this.addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.save"), _ -> this.saveNewChat())
             .pos(centerX - BUTTON_WIDTH - PADDING / 2, y)
             .size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
             .build());
         this.saveButton.active = false;
 
-        addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.cancel"), _ -> minecraft.gui.setScreen(new ConfigScreen(parent)))
+        this.addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.cancel"), _ -> this.minecraft.gui.setScreen(new ConfigScreen(this.parent)))
             .pos(centerX + PADDING / 2, y)
             .size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT)
             .build());
     }
 
     private void initEditChatForm(final int centerX) {
-        int y = PADDING + (font.lineHeight + 2) * 2 + PADDING;
+        int y = PADDING + (this.font.lineHeight + 2) * 2 + PADDING;
 
         this.nameLabelY = y;
-        y += font.lineHeight + 2;
-        this.nameBox = addRenderableWidget(new EditBox(font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
+        y += this.font.lineHeight + 2;
+        this.nameBox = this.addRenderableWidget(new EditBox(this.font, centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Button.DEFAULT_HEIGHT, Component.empty()));
         this.nameBox.setMaxLength(64);
-        this.nameBox.setValue(config.name());
+        this.nameBox.setValue(this.config.name());
         y += Button.DEFAULT_HEIGHT + PADDING;
 
-        this.xSlider = addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.x"), config.x()));
+        this.xSlider = this.addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.x"), this.config.x()));
         y += Button.DEFAULT_HEIGHT + PADDING;
 
-        this.ySlider = addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.y"), config.y()));
+        this.ySlider = this.addRenderableWidget(new PercentSlider(centerX - FIELD_WIDTH / 2, y, FIELD_WIDTH, Component.translatable("secondchat.chat.y"), this.config.y()));
         y += Button.DEFAULT_HEIGHT + PADDING;
 
         final int listBottom = Button.DEFAULT_HEIGHT + PADDING * 2;
-        this.ruleList = addRenderableWidget(new RuleList(minecraft, width, height, y, listBottom));
+        this.ruleList = this.addRenderableWidget(new RuleList(this.minecraft, this.width, this.height, y, listBottom));
 
-        final int buttonsY = height - Button.DEFAULT_HEIGHT - PADDING;
+        final int buttonsY = this.height - Button.DEFAULT_HEIGHT - PADDING;
         final int groupWidth = BUTTON_WIDTH + PADDING + BUTTON_WIDTH + PADDING + BUTTON_WIDTH + PADDING + BUTTON_WIDTH;
-        int bx = width / 2 - groupWidth / 2;
+        int bx = this.width / 2 - groupWidth / 2;
 
-        addRenderableWidget(Button
-            .builder(Component.translatable("secondchat.config.button.add.rule"), _ -> minecraft.gui.setScreen(new EditRuleScreen(this.parent, this.config, null)))
+        this.addRenderableWidget(Button
+            .builder(Component.translatable("secondchat.config.button.add.rule"), _ -> this.minecraft.gui.setScreen(new EditRuleScreen(this.parent, this.config, null)))
             .pos(bx, buttonsY).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         bx += BUTTON_WIDTH + PADDING;
 
-        this.editRuleButton = addRenderableWidget(Button
+        this.editRuleButton = this.addRenderableWidget(Button
             .builder(Component.translatable("secondchat.config.button.edit"), _ -> {
                 final RuleEntry selected = this.ruleList != null ? this.ruleList.getSelected() : null;
-                if (selected != null) openEditRuleScreen(selected.rule);
+                if (selected != null) {
+                    this.openEditRuleScreen(selected.rule);
+                }
             })
             .pos(bx, buttonsY).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
         this.editRuleButton.active = false;
         bx += BUTTON_WIDTH + PADDING;
 
-        this.deleteRuleButton = addRenderableWidget(Button
+        this.deleteRuleButton = this.addRenderableWidget(Button
             .builder(Component.translatable("secondchat.config.button.delete"), _ -> {
                 final RuleEntry selected = this.ruleList != null ? this.ruleList.getSelected() : null;
                 if (selected != null) {
                     this.config.removeRule(selected.rule);
-                    minecraft.gui.setScreen(new EditChatScreen(this.parent, this.config));
+                    this.minecraft.gui.setScreen(new EditChatScreen(this.parent, this.config));
                 }
             })
             .pos(bx, buttonsY).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
-        deleteRuleButton.active = false;
+        this.deleteRuleButton.active = false;
         bx += BUTTON_WIDTH + PADDING;
 
-        addRenderableWidget(Button
+        this.addRenderableWidget(Button
             .builder(Component.translatable("secondchat.config.button.clear"), _ -> {
                 this.config.clearRules();
-                minecraft.gui.setScreen(new EditChatScreen(this.parent, this.config));
+                this.minecraft.gui.setScreen(new EditChatScreen(this.parent, this.config));
             })
             .pos(bx, buttonsY).size(BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
 
-        addRenderableWidget(Button
-            .builder(Component.literal("←"), _ -> done())
+        this.addRenderableWidget(Button
+            .builder(Component.literal("←"), _ -> this.done())
             .pos(PADDING, buttonsY).size(Button.DEFAULT_HEIGHT, Button.DEFAULT_HEIGHT).build());
     }
 
@@ -176,27 +178,33 @@ public final class EditChatScreen extends Screen {
 
         if (this.ruleList != null) {
             final boolean hasSelection = this.ruleList.getSelected() != null;
-            if (this.editRuleButton != null) this.editRuleButton.active = hasSelection;
-            if (this.deleteRuleButton != null) this.deleteRuleButton.active = hasSelection;
+            if (this.editRuleButton != null) {
+                this.editRuleButton.active = hasSelection;
+            }
+            if (this.deleteRuleButton != null) {
+                this.deleteRuleButton.active = hasSelection;
+            }
         }
     }
 
     @Override
     public void onClose() {
         if (this.config != null) {
-            done();
+            this.done();
         } else {
-            minecraft.gui.setScreen(new ConfigScreen(parent));
+            this.minecraft.gui.setScreen(new ConfigScreen(this.parent));
         }
     }
 
     private void saveNewChat() {
         final String name = this.nameBox.getValue().trim();
-        if (name.isBlank()) return;
+        if (name.isBlank()) {
+            return;
+        }
 
         final ChatConfig newConfig = new ChatConfig(name, this.xSlider.getValue(), this.ySlider.getValue());
         SecondChat.instance().addChat(newConfig);
-        minecraft.gui.setScreen(new ConfigScreen(this.parent));
+        this.minecraft.gui.setScreen(new ConfigScreen(this.parent));
     }
 
     private void done() {
@@ -206,7 +214,7 @@ public final class EditChatScreen extends Screen {
                 this.config.updateChat(name, this.xSlider.getValue(), this.ySlider.getValue());
             }
         }
-        minecraft.gui.setScreen(new ConfigScreen(this.parent));
+        this.minecraft.gui.setScreen(new ConfigScreen(this.parent));
     }
 
     private void openEditRuleScreen(final FilterRule rule) {
@@ -219,19 +227,19 @@ public final class EditChatScreen extends Screen {
     public void extractRenderState(final @NonNull GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
-        final int centerX = width / 2;
+        final int centerX = this.width / 2;
 
         if (this.config != null) {
             final Matrix3x2fStack pose = graphics.pose();
             pose.pushMatrix();
             pose.scale(2.0F, 2.0F);
-            graphics.text(font, title, width / 4 - font.width(title) / 2, PADDING + 1, -1, true);
+            graphics.text(this.font, this.title, this.width / 4 - this.font.width(this.title) / 2, PADDING + 1, -1, true);
             pose.popMatrix();
         } else {
-            graphics.text(font, title, centerX - font.width(title) / 2, PADDING * 2, -1, true);
+            graphics.text(this.font, this.title, centerX - this.font.width(this.title) / 2, PADDING * 2, -1, true);
         }
 
-        graphics.text(font, Component.translatable("secondchat.chat.name"), centerX - FIELD_WIDTH / 2, nameLabelY, -1);
+        graphics.text(this.font, Component.translatable("secondchat.chat.name"), centerX - FIELD_WIDTH / 2, this.nameLabelY, -1);
     }
 
     private static final class PercentSlider extends AbstractSliderButton {
@@ -246,7 +254,7 @@ public final class EditChatScreen extends Screen {
 
         @Override
         protected void updateMessage() {
-            setMessage(this.label.copy().append(Component.literal(": " + getValue() + "%")));
+            this.setMessage(this.label.copy().append(Component.literal(": " + this.getValue() + "%")));
         }
 
         @Override
@@ -292,7 +300,9 @@ public final class EditChatScreen extends Screen {
 
         @Override
         public boolean mouseClicked(final @NonNull MouseButtonEvent event, final boolean bl) {
-            if (EditChatScreen.this.ruleList != null) EditChatScreen.this.ruleList.setSelected(this);
+            if (EditChatScreen.this.ruleList != null) {
+                EditChatScreen.this.ruleList.setSelected(this);
+            }
             if (bl && event.button() == 0) {
                 EditChatScreen.this.openEditRuleScreen(this.rule);
             }
@@ -302,26 +312,26 @@ public final class EditChatScreen extends Screen {
         @Override
         public void extractContent(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final boolean hovered, final float a) {
             final Matrix3x2fStack pose = graphics.pose();
-            final int contentWidth = getContentWidth();
-            final int contentHeight = getContentHeight();
-            final int y1 = (contentHeight - font.lineHeight * 2 - 2) / 2;
+            final int contentWidth = this.getContentWidth();
+            final int contentHeight = this.getContentHeight();
+            final int y1 = (contentHeight - EditChatScreen.this.font.lineHeight * 2 - 2) / 2;
 
             pose.pushMatrix();
-            pose.translate(getContentX(), getContentY());
+            pose.translate(this.getContentX(), this.getContentY());
 
             String valueString = this.rule.value();
             final int maxWidth = contentWidth - INNER_PADDING * 2;
-            if (font.width(valueString) > maxWidth) {
-                while (!valueString.isEmpty() && font.width(valueString + "...") > maxWidth) {
+            if (EditChatScreen.this.font.width(valueString) > maxWidth) {
+                while (!valueString.isEmpty() && EditChatScreen.this.font.width(valueString + "...") > maxWidth) {
                     valueString = valueString.substring(0, valueString.length() - 1);
                 }
                 valueString += "...";
             }
-            graphics.text(font, Component.literal(valueString), INNER_PADDING, y1, -1);
+            graphics.text(EditChatScreen.this.font, Component.literal(valueString), INNER_PADDING, y1, -1);
 
             final Component typeText = Component.translatable("secondchat.config.filter." + this.rule.type().name().toLowerCase()).withStyle(ChatFormatting.GOLD);
             final Component serverText = this.rule.server() == null ? Component.translatable("secondchat.config.server.all").withStyle(ChatFormatting.DARK_GRAY) : Component.literal(this.rule.server()).withStyle(ChatFormatting.GRAY);
-            graphics.text(font, Component.empty().append(typeText).append(Component.literal(" | ").withStyle(ChatFormatting.DARK_GRAY)).append(serverText), INNER_PADDING, y1 + font.lineHeight + 2, -1);
+            graphics.text(EditChatScreen.this.font, Component.empty().append(typeText).append(Component.literal(" | ").withStyle(ChatFormatting.DARK_GRAY)).append(serverText), INNER_PADDING, y1 + EditChatScreen.this.font.lineHeight + 2, -1);
 
             pose.popMatrix();
         }

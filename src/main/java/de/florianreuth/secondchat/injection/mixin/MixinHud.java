@@ -76,7 +76,7 @@ public abstract class MixinHud {
 
     @Redirect(method = "extractChat", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/Hud;chat:Lnet/minecraft/client/gui/components/ChatComponent;", opcode = Opcodes.GETFIELD))
     private ChatComponent replaceChatComponent(Hud instance) {
-        return this.secondChat$currentChat != null ? this.secondChat$currentChat : chat;
+        return this.secondChat$currentChat != null ? this.secondChat$currentChat : this.chat;
     }
 
 }

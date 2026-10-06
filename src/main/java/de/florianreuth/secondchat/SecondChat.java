@@ -74,13 +74,13 @@ public final class SecondChat implements ClientModInitializer {
                     }
                 }
             } catch (final Exception e) {
-                logger.error("Failed to read config file!", e);
+                this.logger.error("Failed to read config file!", e);
             }
         }
 
         for (final ChatConfig config : this.chatConfigs) {
             if (config.rules().removeIf(rule -> rule.type() == null || rule.value() == null)) {
-                logger.warn("Removed invalid filter rules of chat {} from config file!", config.name());
+                this.logger.warn("Removed invalid filter rules of chat {} from config file!", config.name());
             }
         }
 
@@ -93,7 +93,7 @@ public final class SecondChat implements ClientModInitializer {
         try {
             Files.write(this.configPath, this.gson.toJson(this.chatConfigs).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (final Exception e) {
-            logger.error("Failed to write config file!", e);
+            this.logger.error("Failed to write config file!", e);
         }
     }
 
