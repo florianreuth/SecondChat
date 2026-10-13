@@ -41,7 +41,7 @@
   "mixins": [
     "secondchat.mixins.json"
   ],
-  "accessWidener": "secondchat.accesswidener",
+  "accessWidener": "secondchat.classtweaker",
   "depends": {
     "minecraft": "${mcVersion}",
     "java": ">=25"
