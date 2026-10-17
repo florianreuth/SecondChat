@@ -63,6 +63,17 @@ public abstract class MixinChatComponent {
         }
     }
 
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void tickAdditionalChats(CallbackInfo ci) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
+            for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+                if (config.chatComponent() != null) {
+                    config.chatComponent().tick();
+                }
+            }
+        }
+    }
+
     @Inject(method = "deleteMessage", at = @At("RETURN"))
     private void proxyDeleteMessage(MessageSignature signature, CallbackInfo ci) {
         if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
