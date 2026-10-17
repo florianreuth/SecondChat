@@ -20,6 +20,8 @@ package de.florianreuth.secondchat.injection.mixin;
 
 import de.florianreuth.secondchat.SecondChat;
 import de.florianreuth.secondchat.filter.ChatConfig;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -29,12 +31,17 @@ import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ChatComponent.class)
 public abstract class MixinChatComponent {
+
+    @Unique
+    private final Map<ChatConfig, ChatComponent.State> secondChat$storedStates = new HashMap<>();
 
     @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
     private void proxyMessages(Component contents, MessageSignature signature, GuiMessageSource source, GuiMessageTag tag, CallbackInfo ci) {
@@ -75,6 +82,30 @@ public abstract class MixinChatComponent {
                     config.chatComponent().clearMessages(history);
                 }
             }
+        }
+    }
+
+    @Inject(method = "storeState", at = @At("RETURN"))
+    private void storeAdditionalChatsState(CallbackInfoReturnable<ChatComponent.State> cir) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
+            this.secondChat$storedStates.clear();
+            for (final ChatConfig config : SecondChat.instance().chatConfigs()) {
+                if (config.chatComponent() != null) {
+                    this.secondChat$storedStates.put(config, config.chatComponent().storeState());
+                }
+            }
+        }
+    }
+
+    @Inject(method = "restoreState", at = @At("RETURN"))
+    private void restoreAdditionalChatsState(ChatComponent.State state, CallbackInfo ci) {
+        if ((Object) this == Minecraft.getInstance().gui.hud.getChat()) {
+            for (final Map.Entry<ChatConfig, ChatComponent.State> entry : this.secondChat$storedStates.entrySet()) {
+                if (entry.getKey().chatComponent() != null) {
+                    entry.getKey().chatComponent().restoreState(entry.getValue());
+                }
+            }
+            this.secondChat$storedStates.clear();
         }
     }
 
